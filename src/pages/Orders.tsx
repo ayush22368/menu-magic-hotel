@@ -101,7 +101,7 @@ const Orders = () => {
                         <div>
                           <h3 className="font-semibold text-sm text-gray-600 mb-2">Guest Information</h3>
                           <p className="text-sm">Name: {order.customerName}</p>
-                          <p className="text-sm">Room: {order.roomNumber}</p>
+                          <p className="text-sm">Table: {order.tableNumber}</p>
                         </div>
                         
                         <div>

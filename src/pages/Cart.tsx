@@ -11,7 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 const Cart = () => {
   const { cart, menuItems, removeFromCart, updateCartItem, placeOrder } = useHotel();
   const [customerName, setCustomerName] = useState("");
-  const [roomNumber, setRoomNumber] = useState("");
+  const [tableNumber, setTableNumber] = useState(""); // Changed from roomNumber to tableNumber
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -67,16 +67,16 @@ const Cart = () => {
       return;
     }
 
-    if (!roomNumber.trim()) {
+    if (!tableNumber.trim()) {
       toast({
-        title: "Room number required",
-        description: "Please enter your room number to place the order",
+        title: "Table number required",
+        description: "Please enter your table number to place the order",
         variant: "destructive",
       });
       return;
     }
 
-    const order = placeOrder(customerName, roomNumber);
+    const order = placeOrder(customerName, tableNumber);
     toast({
       title: "Order placed successfully",
       description: `Your order #${order.id.slice(0, 8)} has been placed and will be delivered soon`,
@@ -209,14 +209,14 @@ const Cart = () => {
                 />
               </div>
               <div>
-                <label htmlFor="room" className="block text-sm mb-1">
-                  Room Number
+                <label htmlFor="table" className="block text-sm mb-1">
+                  Table Number
                 </label>
                 <Input
-                  id="room"
-                  placeholder="Enter your room number"
-                  value={roomNumber}
-                  onChange={(e) => setRoomNumber(e.target.value)}
+                  id="table"
+                  placeholder="Enter your table number"
+                  value={tableNumber}
+                  onChange={(e) => setTableNumber(e.target.value)}
                 />
               </div>
             </div>

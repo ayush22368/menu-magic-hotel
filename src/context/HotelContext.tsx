@@ -22,7 +22,7 @@ export type OrderItem = {
 export type Order = {
   id: string;
   customerName: string;
-  roomNumber: string;
+  tableNumber: string; // Changed from roomNumber to tableNumber
   items: OrderItem[];
   status: "pending" | "confirmed" | "completed" | "cancelled";
   timestamp: Date;
@@ -41,7 +41,7 @@ type HotelContextType = {
   removeFromCart: (orderItemId: string) => void;
   updateCartItem: (orderItemId: string, quantity: number, specialInstructions?: string) => void;
   clearCart: () => void;
-  placeOrder: (customerName: string, roomNumber: string) => Order;
+  placeOrder: (customerName: string, tableNumber: string) => Order; // Changed parameter name
   updateOrderStatus: (orderId: string, status: Order["status"]) => void;
 };
 
@@ -163,7 +163,7 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Place an order
-  const placeOrder = (customerName: string, roomNumber: string): Order => {
+  const placeOrder = (customerName: string, tableNumber: string): Order => { // Changed parameter name
     const total = cart.reduce((sum, item) => {
       const menuItem = menuItems.find((menu) => menu.id === item.menuItemId);
       return sum + (menuItem?.price || 0) * item.quantity;
@@ -172,7 +172,7 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newOrder: Order = {
       id: Date.now().toString(),
       customerName,
-      roomNumber,
+      tableNumber, // Changed from roomNumber to tableNumber
       items: [...cart],
       status: "pending",
       timestamp: new Date(),

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useHotel, MenuItem } from "@/context/HotelContext";
 import { Button } from "@/components/ui/button";
@@ -8,8 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pencil, Trash2, Plus, Check, Clock, Ban } from "lucide-react";
+import { Pencil, Trash2, Plus, Check, Clock, Ban, EyeIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -17,6 +17,7 @@ const Admin = () => {
   const { menuItems, orders, addMenuItem, updateMenuItem, deleteMenuItem, updateOrderStatus } = useHotel();
   const [isAddingMenuItem, setIsAddingMenuItem] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [viewOrderDetails, setViewOrderDetails] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Form state for new/edit menu item
@@ -117,6 +118,11 @@ const Admin = () => {
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
+  // Get menu item by id
+  const getMenuItem = (id: string) => {
+    return menuItems.find((item) => item.id === id);
+  };
+
   // Form for adding/editing menu items
   const renderMenuItemForm = () => (
     <Card className="mb-6">
@@ -216,11 +222,138 @@ const Admin = () => {
     </Card>
   );
 
+  // Render order details
+  const renderOrderDetails = (orderId: string) => {
+    const order = orders.find((o) => o.id === orderId);
+    if (!order) return null;
+
+    return (
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Order Details #{order.id.slice(0, 8)}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="text-sm font-semibold">Customer Information</h3>
+                <p className="text-sm mt-1">Name: {order.customerName}</p>
+                <p className="text-sm">Table: {order.tableNumber}</p>
+                <p className="text-sm">Date: {format(new Date(order.timestamp), "MMM d, yyyy h:mm a")}</p>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold">Order Status</h3>
+                <Badge className="mt-1 capitalize">{order.status}</Badge>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold mb-2">Ordered Items</h3>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Item</TableHead>
+                    <TableHead>Quantity</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {order.items.map((item) => {
+                    const menuItem = getMenuItem(item.menuItemId);
+                    if (!menuItem) return null;
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="w-10 h-10 rounded overflow-hidden">
+                              <img
+                                src={menuItem.image}
+                                alt={menuItem.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div>
+                              <p className="font-medium">{menuItem.name}</p>
+                              {item.specialInstructions && (
+                                <p className="text-xs text-gray-500 italic">Note: {item.specialInstructions}</p>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                        <TableCell>${menuItem.price.toFixed(2)}</TableCell>
+                        <TableCell>${(menuItem.price * item.quantity).toFixed(2)}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+
+            <div className="flex justify-between font-semibold text-lg">
+              <span>Total</span>
+              <span>${order.total.toFixed(2)}</span>
+            </div>
+
+            <div className="border-t pt-4">
+              <h3 className="text-sm font-semibold mb-2">Update Status</h3>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={order.status === "pending" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleStatusChange(order.id, "pending")}
+                  disabled={order.status === "pending"}
+                  className={order.status === "pending" ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                >
+                  <Clock className="mr-1 h-4 w-4" /> Pending
+                </Button>
+                <Button
+                  variant={order.status === "confirmed" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleStatusChange(order.id, "confirmed")}
+                  disabled={order.status === "confirmed"}
+                  className={order.status === "confirmed" ? "bg-blue-500 hover:bg-blue-600" : ""}
+                >
+                  <Check className="mr-1 h-4 w-4" /> Confirm
+                </Button>
+                <Button
+                  variant={order.status === "completed" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleStatusChange(order.id, "completed")}
+                  disabled={order.status === "completed"}
+                  className={order.status === "completed" ? "bg-green-500 hover:bg-green-600" : ""}
+                >
+                  <Check className="mr-1 h-4 w-4" /> Complete
+                </Button>
+                <Button
+                  variant={order.status === "cancelled" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleStatusChange(order.id, "cancelled")}
+                  disabled={order.status === "cancelled"}
+                  className={order.status === "cancelled" ? "bg-red-500 hover:bg-red-600" : ""}
+                >
+                  <Ban className="mr-1 h-4 w-4" /> Cancel
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => setViewOrderDetails(null)}>
+                Close Details
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold text-hotel-primary mb-6 text-center">Admin Dashboard</h1>
 
-      <Tabs defaultValue="menu" className="max-w-6xl mx-auto">
+      <Tabs defaultValue="orders" className="max-w-6xl mx-auto">
         <TabsList className="mx-auto mb-6">
           <TabsTrigger value="menu">Menu Management</TabsTrigger>
           <TabsTrigger value="orders">Order Management</TabsTrigger>
@@ -284,6 +417,8 @@ const Admin = () => {
         <TabsContent value="orders">
           <h2 className="text-xl font-semibold mb-6">Orders</h2>
 
+          {viewOrderDetails && renderOrderDetails(viewOrderDetails)}
+
           {orders.length === 0 ? (
             <div className="text-center py-12 bg-gray-50 rounded-lg">
               <p className="text-gray-500">No orders have been placed yet.</p>
@@ -323,7 +458,7 @@ const Admin = () => {
                       <div>
                         <h3 className="text-sm font-semibold text-gray-600 mb-1">Customer</h3>
                         <p>{order.customerName}</p>
-                        <p className="text-sm text-gray-600">Room: {order.roomNumber}</p>
+                        <p className="text-sm text-gray-600">Table: {order.tableNumber}</p>
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-gray-600 mb-1">Order Summary</h3>
@@ -332,8 +467,16 @@ const Admin = () => {
                       </div>
                     </div>
 
-                    <div className="border-t pt-4">
-                      <h3 className="text-sm font-semibold text-gray-600 mb-2">Update Status</h3>
+                    <div className="flex justify-between items-center">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setViewOrderDetails(order.id)}
+                        className="border-hotel-primary text-hotel-primary"
+                      >
+                        <EyeIcon className="mr-1 h-4 w-4" /> View Order Details
+                      </Button>
+
                       <div className="flex flex-wrap gap-2">
                         <Button
                           variant={order.status === "pending" ? "default" : "outline"}
