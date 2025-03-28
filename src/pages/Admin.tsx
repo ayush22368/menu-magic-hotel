@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useHotel, MenuItem } from "@/context/HotelContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,10 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pencil, Trash2, Plus, Check, Clock, Ban, EyeIcon, IndianRupee } from "lucide-react";
+import { Pencil, Trash2, Plus, Check, Clock, Ban, EyeIcon, IndianRupee, Upload, Image } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import AdminAuth from "@/components/AdminAuth";
+import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 
 const Admin = () => {
   const { menuItems, orders, addMenuItem, updateMenuItem, deleteMenuItem, updateOrderStatus } = useHotel();
@@ -21,10 +21,13 @@ const Admin = () => {
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [viewOrderDetails, setViewOrderDetails] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   // Form state for new/edit menu item
-  const [formData, setFormData] = useState<Omit<MenuItem, "id">>({
+  const [formData, setFormData] = useState<Omit<MenuItem, "id" | "image"> & { image: string }>({
     name: "",
     description: "",
     price: 0,
@@ -40,6 +43,11 @@ const Admin = () => {
       category: "",
       image: "",
     });
+    setSelectedImage(null);
+    setPreviewImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -57,17 +65,46 @@ const Admin = () => {
     });
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedImage(file);
+      
+      // Create a preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleAddMenuItem = () => {
-    if (!formData.name || !formData.description || !formData.category || !formData.image) {
+    if (!formData.name || !formData.description || !formData.category) {
       toast({
         title: "Missing fields",
-        description: "Please fill in all fields",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
       return;
     }
 
-    addMenuItem(formData);
+    if (!previewImage) {
+      toast({
+        title: "Missing image",
+        description: "Please upload an image for the menu item",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Using the preview image as the image URL (in a real app, you'd upload this to a server)
+    const newMenuItem = {
+      ...formData,
+      image: previewImage,
+    };
+
+    addMenuItem(newMenuItem);
     toast({
       title: "Menu item added",
       description: `${formData.name} has been added to the menu`,
@@ -78,7 +115,22 @@ const Admin = () => {
 
   const handleEditMenuItem = () => {
     if (editingItemId) {
-      updateMenuItem(editingItemId, formData);
+      if (!formData.name || !formData.description || !formData.category) {
+        toast({
+          title: "Missing fields",
+          description: "Please fill in all required fields",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // If a new image is selected, use the preview image, otherwise keep the existing image
+      const updatedMenuItem = {
+        ...formData,
+        image: previewImage || formData.image,
+      };
+
+      updateMenuItem(editingItemId, updatedMenuItem);
       toast({
         title: "Menu item updated",
         description: `${formData.name} has been updated`,
@@ -96,6 +148,7 @@ const Admin = () => {
       category: item.category,
       image: item.image,
     });
+    setPreviewImage(item.image);
     setEditingItemId(item.id);
     setIsAddingMenuItem(false);
   };
@@ -198,14 +251,62 @@ const Admin = () => {
           </div>
           
           <div>
-            <Label htmlFor="image">Image URL</Label>
-            <Input
-              id="image"
-              name="image"
-              value={formData.image}
-              onChange={handleInputChange}
-              placeholder="https://example.com/image.jpg"
-            />
+            <Label>Item Image</Label>
+            <div className="mt-2">
+              <div 
+                className={`border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 transition ${
+                  previewImage ? 'border-gray-300' : 'border-gray-400'
+                }`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {previewImage ? (
+                  <div className="space-y-2">
+                    <div className="w-full h-40 mx-auto overflow-hidden rounded-md">
+                      <img 
+                        src={previewImage} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPreviewImage(null);
+                        setSelectedImage(null);
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = '';
+                        }
+                      }}
+                    >
+                      Change Image
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Image className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium text-hotel-primary">
+                        Click to upload
+                      </span>{" "}
+                      or drag and drop
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      PNG, JPG, GIF up to 10MB
+                    </p>
+                  </div>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+              </div>
+            </div>
           </div>
           
           <div className="flex justify-end gap-2 mt-4">
