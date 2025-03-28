@@ -23,7 +23,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <span className="text-hotel-primary font-bold text-xl">Royal Palace Hotel</span>
+              <span className="text-hotel-primary font-bold text-xl">Hotel Shivam</span>
             </div>
           </div>
           
