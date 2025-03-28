@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useHotel, MenuItem } from "@/context/HotelContext";
 import { Button } from "@/components/ui/button";
@@ -9,15 +10,17 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pencil, Trash2, Plus, Check, Clock, Ban, EyeIcon } from "lucide-react";
+import { Pencil, Trash2, Plus, Check, Clock, Ban, EyeIcon, IndianRupee } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
+import AdminAuth from "@/components/AdminAuth";
 
 const Admin = () => {
   const { menuItems, orders, addMenuItem, updateMenuItem, deleteMenuItem, updateOrderStatus } = useHotel();
   const [isAddingMenuItem, setIsAddingMenuItem] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [viewOrderDetails, setViewOrderDetails] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
 
   // Form state for new/edit menu item
@@ -123,6 +126,11 @@ const Admin = () => {
     return menuItems.find((item) => item.id === id);
   };
 
+  // If not authenticated, show the auth screen
+  if (!isAuthenticated) {
+    return <AdminAuth onAuthenticate={() => setIsAuthenticated(true)} />;
+  }
+
   // Form for adding/editing menu items
   const renderMenuItemForm = () => (
     <Card className="mb-6">
@@ -156,7 +164,7 @@ const Admin = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="price">Price ($)</Label>
+              <Label htmlFor="price">Price (₹)</Label>
               <Input
                 id="price"
                 name="price"
@@ -179,6 +187,7 @@ const Admin = () => {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="Breakfast">Breakfast</SelectItem>
                   <SelectItem value="Starter">Starter</SelectItem>
                   <SelectItem value="Main Course">Main Course</SelectItem>
                   <SelectItem value="Dessert">Dessert</SelectItem>
@@ -282,8 +291,18 @@ const Admin = () => {
                           </div>
                         </TableCell>
                         <TableCell>{item.quantity}</TableCell>
-                        <TableCell>${menuItem.price.toFixed(2)}</TableCell>
-                        <TableCell>${(menuItem.price * item.quantity).toFixed(2)}</TableCell>
+                        <TableCell>
+                          <span className="flex items-center">
+                            <IndianRupee className="h-3 w-3 mr-1" />
+                            {menuItem.price.toFixed(2)}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="flex items-center">
+                            <IndianRupee className="h-3 w-3 mr-1" />
+                            {(menuItem.price * item.quantity).toFixed(2)}
+                          </span>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -293,7 +312,10 @@ const Admin = () => {
 
             <div className="flex justify-between font-semibold text-lg">
               <span>Total</span>
-              <span>${order.total.toFixed(2)}</span>
+              <span className="flex items-center">
+                <IndianRupee className="h-4 w-4 mr-1" />
+                {order.total.toFixed(2)}
+              </span>
             </div>
 
             <div className="border-t pt-4">
@@ -390,7 +412,10 @@ const Admin = () => {
                     <Badge>{item.category}</Badge>
                   </div>
                   <p className="text-sm text-gray-600 mb-2 line-clamp-2">{item.description}</p>
-                  <p className="font-medium">${item.price.toFixed(2)}</p>
+                  <p className="font-medium flex items-center">
+                    <IndianRupee className="h-3 w-3 mr-1" />
+                    {item.price.toFixed(2)}
+                  </p>
                   <div className="flex justify-end gap-2 mt-4">
                     <Button
                       variant="outline"
@@ -463,7 +488,10 @@ const Admin = () => {
                       <div>
                         <h3 className="text-sm font-semibold text-gray-600 mb-1">Order Summary</h3>
                         <p>{order.items.length} items</p>
-                        <p className="font-medium">${order.total.toFixed(2)}</p>
+                        <p className="font-medium flex items-center">
+                          <IndianRupee className="h-3 w-3 mr-1" />
+                          {order.total.toFixed(2)}
+                        </p>
                       </div>
                     </div>
 

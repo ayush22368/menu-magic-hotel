@@ -22,10 +22,10 @@ const Menu = () => {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-hotel-primary mb-2">Hotel Restaurant Menu</h1>
+        <h1 className="text-3xl font-bold text-hotel-primary mb-2">Indian Restaurant Menu</h1>
         <p className="text-gray-600 max-w-xl mx-auto">
-          Explore our delicious selection of dishes, from appetizers to desserts,
-          all prepared with the finest ingredients by our talented chefs.
+          Explore our delicious selection of authentic Indian dishes, from spicy curries to sweet desserts,
+          all prepared with traditional spices by our expert chefs.
         </p>
       </div>
 

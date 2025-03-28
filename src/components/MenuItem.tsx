@@ -4,7 +4,7 @@ import { useHotel, MenuItem as MenuItemType } from "@/context/HotelContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, IndianRupee } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 type MenuItemProps = {
@@ -46,7 +46,10 @@ const MenuItem: React.FC<MenuItemProps> = ({ item }) => {
           className="w-full h-full object-cover transition-transform hover:scale-105"
         />
         <div className="absolute top-2 right-2 bg-hotel-secondary text-white px-2 py-1 rounded-full text-sm font-semibold">
-          ${item.price.toFixed(2)}
+          <span className="flex items-center">
+            <IndianRupee className="h-3 w-3 mr-1" />
+            {item.price.toFixed(2)}
+          </span>
         </div>
       </div>
       <CardContent className="p-4">

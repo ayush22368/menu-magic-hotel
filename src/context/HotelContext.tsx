@@ -22,7 +22,7 @@ export type OrderItem = {
 export type Order = {
   id: string;
   customerName: string;
-  tableNumber: string; // Changed from roomNumber to tableNumber
+  tableNumber: string;
   items: OrderItem[];
   status: "pending" | "confirmed" | "completed" | "cancelled";
   timestamp: Date;
@@ -41,62 +41,62 @@ type HotelContextType = {
   removeFromCart: (orderItemId: string) => void;
   updateCartItem: (orderItemId: string, quantity: number, specialInstructions?: string) => void;
   clearCart: () => void;
-  placeOrder: (customerName: string, tableNumber: string) => Order; // Changed parameter name
+  placeOrder: (customerName: string, tableNumber: string) => Order;
   updateOrderStatus: (orderId: string, status: Order["status"]) => void;
 };
 
 // Create the context
 const HotelContext = createContext<HotelContextType | undefined>(undefined);
 
-// Sample menu items
+// Sample menu items with Indian dishes
 const sampleMenuItems: MenuItem[] = [
   {
     id: "1",
-    name: "Classic Burger",
-    description: "Juicy beef patty with lettuce, tomato, and our special sauce",
-    price: 15.99,
+    name: "Butter Chicken",
+    description: "Tender chicken cooked in a rich, creamy tomato sauce with butter and spices",
+    price: 350,
     category: "Main Course",
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YnVyZ2VyfGVufDB8fDB8fHww",
+    image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YnV0dGVyJTIwY2hpY2tlbnxlbnwwfHwwfHx8MA%3D%3D",
   },
   {
     id: "2",
-    name: "Margherita Pizza",
-    description: "Fresh mozzarella, tomatoes, and basil on our homemade crust",
-    price: 18.99,
+    name: "Paneer Tikka Masala",
+    description: "Grilled cottage cheese cubes in a spiced tomato gravy",
+    price: 300,
     category: "Main Course",
-    image: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8cGl6emF8ZW58MHx8MHx8fDA%3D",
+    image: "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGFuZWVyJTIwdGlra2F8ZW58MHx8MHx8fDA%3D",
   },
   {
     id: "3",
-    name: "Caesar Salad",
-    description: "Crisp romaine lettuce, croutons, parmesan, and Caesar dressing",
-    price: 12.99,
-    category: "Starter",
-    image: "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2Flc2FyJTIwc2FsYWR8ZW58MHx8MHx8fDA%3D",
+    name: "Masala Dosa",
+    description: "Crispy rice pancake filled with spiced potato, served with sambar and chutney",
+    price: 180,
+    category: "Breakfast",
+    image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZG9zYXxlbnwwfHwwfHx8MA%3D%3D",
   },
   {
     id: "4",
-    name: "Chocolate Lava Cake",
-    description: "Warm chocolate cake with a molten center, served with vanilla ice cream",
-    price: 9.99,
+    name: "Gulab Jamun",
+    description: "Deep-fried milk solids soaked in rose flavored sugar syrup",
+    price: 120,
     category: "Dessert",
-    image: "https://images.unsplash.com/photo-1617305855058-336d9ce3eb2a?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2hvY29sYXRlJTIwbGF2YSUyMGNha2V8ZW58MHx8MHx8fDA%3D",
+    image: "https://images.unsplash.com/photo-1601303516477-408fa5a8a271?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z3VsYWIlMjBqYW11bnxlbnwwfHwwfHx8MA%3D%3D",
   },
   {
     id: "5",
-    name: "Grilled Salmon",
-    description: "Fresh salmon fillet, grilled to perfection with lemon herb butter",
-    price: 24.99,
+    name: "Biryani",
+    description: "Fragrant basmati rice cooked with aromatic spices and your choice of meat or vegetables",
+    price: 280,
     category: "Main Course",
-    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z3JpbGxlZCUyMHNhbG1vbnxlbnwwfHwwfHx8MA%3D%3D",
+    image: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YmlyeWFuaXxlbnwwfHwwfHx8MA%3D%3D",
   },
   {
     id: "6",
-    name: "Caprese Salad",
-    description: "Fresh mozzarella, tomatoes, and basil drizzled with balsamic glaze",
-    price: 10.99,
+    name: "Samosa",
+    description: "Crispy pastry filled with spiced potatoes and peas, served with mint chutney",
+    price: 80,
     category: "Starter",
-    image: "https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2FwcmVzZSUyMHNhbGFkfGVufDB8fDB8fHww",
+    image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2Ftb3NhfGVufDB8fDB8fHww",
   }
 ];
 
@@ -163,7 +163,7 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Place an order
-  const placeOrder = (customerName: string, tableNumber: string): Order => { // Changed parameter name
+  const placeOrder = (customerName: string, tableNumber: string): Order => {
     const total = cart.reduce((sum, item) => {
       const menuItem = menuItems.find((menu) => menu.id === item.menuItemId);
       return sum + (menuItem?.price || 0) * item.quantity;
@@ -172,7 +172,7 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newOrder: Order = {
       id: Date.now().toString(),
       customerName,
-      tableNumber, // Changed from roomNumber to tableNumber
+      tableNumber,
       items: [...cart],
       status: "pending",
       timestamp: new Date(),
